@@ -2,10 +2,10 @@ import os
 import asyncio
 import litellm
 from crewai import Agent, Task, Crew, LLM
+from dotenv import load_dotenv
 
-# =====================================================================
-# 🛠️ THE MONKEYPATCH (Keep this to fix the CrewAI caching bug)
-# =====================================================================
+load_dotenv()
+
 original_completion = litellm.completion
 original_acompletion = litellm.acompletion
 
@@ -26,37 +26,19 @@ async def patched_acompletion(*args, **kwargs):
 litellm.completion = patched_completion
 litellm.acompletion = patched_acompletion
 
-# =====================================================================
-# 1. CONFIGURATION & MODEL SETUP
-# =====================================================================
-os.environ["GROQ_API_KEY"] = "PASTE_YOUR_GROQ_API_KEY_HERE"
+os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY", "")
 
 groq_llm = LLM(
     model="groq/llama-3.3-70b-versatile",
     temperature=0.5
 )
 
-# =====================================================================
-# 2. PROFILE DATA (Change this whenever you want to highlight different skills!)
-# =====================================================================
 my_profile = {
-    "name": "Rokim Hussain",
-    "title": "Information Technology Undergraduate",
-    "languages": "C++, Python, JavaScript",
-    # 👇 You can change or add skills here depending on the roles you want
-    "skills": "HTML, CSS, React, Web Development, Full-Stack Building, CNN, GAN, Data Entry", 
-    "key_projects": (
-        "1. AI Clothing Generator: Generative AI pipeline using GANs and CNNs.\n"
-        "2. Portfolio Web Builder: Clean, responsive web applications using HTML, CSS, and JavaScript." 
-        "3. can create beatiful website for small business and personal use using React and JavaScript."
-        "4. Data entry project: Efficiently organized and inputted large datasets with high accuracy, demonstrating attention to detail and reliability."
-        # 💡 Just add your other software/web projects here!
-    )
+   "name": os.getenv("MASTER_NAME", "Developer"),
+   "skills": os.getenv("MASTER_SKILLS", "Python, AI"),
+   "projects": os.getenv("MASTER_PROJECTS", "AI Projects")
 }
 
-# =====================================================================
-# 3. TARGET JOB POSTING DATA (Just paste ANY job description here)
-# =====================================================================
 target_job = {
     "platform": "Upwork",
     "title": "Web Developer needed for Responsive Business Website", # Example Web Dev job
@@ -66,9 +48,6 @@ target_job = {
     )
 }
 
-# =====================================================================
-# 4. UNIVERSAL AGENT DEFINITIONS (These stay completely unchanged)
-# =====================================================================
 strategist_agent = Agent(
     role="Outreach Strategist",
     goal=f"Analyze how {my_profile['name']} perfectly aligns with the targeted job requirements.",
@@ -123,9 +102,6 @@ task_draft_proposal = Task(
     human_input=True
 )
 
-# =====================================================================
-# 6. CREW ASSEMBLY AND EXECUTION
-# =====================================================================
 scout_crew = Crew(
     agents=[strategist_agent, writer_agent],
     tasks=[task_analysis, task_draft_proposal],
