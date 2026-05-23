@@ -165,12 +165,13 @@ async def run_jarvis_pipeline(user_prompt, conversation_history, skills, project
 
     task_fetch = Task(
         description=(
-            f"The user's direct input command is: '{user_prompt}'\n"
-            "1. Strip away all conversational filler words (like 'ok', 'please', 'find me', 'look up').\n"
-            "2. Extract only the clean, raw search keywords.\n"
-            "3. Execute your brave_search tool using those optimized keywords and collect the results."
+            f"The user's direct input command is: '{user_prompt}'\n\n"
+            "1. Analyze if this input actually requires a live web search (like tracking jobs, tech trends, or company data).\n"
+            "2. If it is just a casual greeting, greeting acknowledgment, or small talk (like 'hi', 'hello', 'you up', 'ok thanks'), "
+            "DO NOT execute the brave_search tool. Simply return the text: 'Casual chat detected; search bypassed.'\n"
+            "3. If it DOES require a search, extract the clean keywords and execute the brave_search tool."
         ),
-        expected_output="Clean search engine data snippets or relevant data extractions.",
+        expected_output="Clean real-time search engine data snippets or a conversational bypass note.",
         agent=scout_agent
     )
 
